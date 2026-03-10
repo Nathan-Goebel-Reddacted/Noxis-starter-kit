@@ -1,0 +1,9 @@
+{
+  "name": "@cardgame/[domain-name]",
+  "version": "0.0.1",
+  "private": true,
+  "module": "Domain/index.ts",
+  "dependencies": {
+    "@cardgame/shared": "workspace:*"
+  }
+}
