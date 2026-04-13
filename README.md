@@ -24,17 +24,16 @@ bun install
 make migrate
 
 # 5. Démarrer le serveur en dev
-bun --filter @cardgame/api run dev
+bun --filter @cardgame/server run dev
 ```
 
 ## Structure
 
 ```
 apps/
-  api/      ← Serveur Bun (HTTP + Socket.IO)
+  server/   ← Serveur Bun (Socket.IO)
   web/      ← Frontend React + TypeScript
-packages/
-  shared/   ← (Level 2) Interfaces DDD communes
+shared/     ← Building blocks DDD (@cardgame/shared)
 ```
 
 ## Commandes

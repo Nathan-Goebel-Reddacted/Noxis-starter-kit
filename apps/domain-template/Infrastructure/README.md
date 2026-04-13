@@ -4,8 +4,8 @@ Contient **tous** les adapters — primaires (entrée) et secondaires (sortie).
 
 | Dossier | Type | Contenu |
 |---------|------|---------|
-| `Persistence/` | Adapter secondaire (driven) | Implémentations Repository (PostgreSQL) |
-| `Messaging/` | Adapter secondaire (driven) | EventBus Redis, pub/sub |
+| `Persistence/` | Adapter secondaire (driven) | Implémentations Repository |
+| `Messaging/` | Adapter secondaire (driven) | Implémentations EventBus |
 | `Http/` | Adapter primaire (driving) | Controllers HTTP |
 | `Socket/` | Adapter primaire (driving) | Handlers Socket.IO |
 

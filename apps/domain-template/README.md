@@ -3,7 +3,10 @@
 Template à copier-coller pour chaque nouveau domaine.
 
 ```bash
-cp -r domain-template/ apps/api/src/Domains/MonNouveauDomaine/
+cp -r apps/domain-template/ apps/MonNouveauDomaine/
+
+# Workflows GitHub CI (optionnel) :
+cp -r _github/ .github/
 ```
 
 Puis renommer tous les fichiers `Example*` → `MonAgregat*` et supprimer les commentaires `TODO`.
@@ -20,7 +23,6 @@ MonDomaine/
     Service/          ← Services domaine (logique hors agrégat)
     Event/            ← Domain events (nommés au passé : GameStarted, CardMoved...)
     Exception/        ← Exceptions métier typées
-    Countable.ts      ← Interface compteurs (spécifique au jeu de cartes)
   Application/
     *.UseCase.ts      ← Un use case par action
     Port/             ← Interfaces vers services externes
@@ -53,7 +55,12 @@ Interface → Application → Domain ← Infrastructure
 ## ⚠️ Workspaces Bun
 
 Le dossier `domain-template/` n'est **pas** dans les workspaces Bun (voir `package.json` racine).
-Une fois copié dans `apps/api/src/Domains/MonDomaine/`, le domaine est résolu via le workspace `@cardgame/api`.
+Une fois copié dans `apps/[domaine]/`, le domaine est résolu via le workspace `apps/*`.
 
 L'import `@cardgame/shared` dans le template sera résolu correctement dès que le domaine
 est placé sous un package workspace. **Ne pas tenter d'importer directement depuis `domain-template/`.**
+
+> **Note tsconfig** : le `"extends": "../../tsconfig.json"` dans `domain-template/tsconfig.json`
+> est intentionnellement prévu pour sa destination `apps/[domaine]/`. Depuis `domain-template/`
+> en place le chemin est invalide, mais `domain-template/` n'est pas dans les workspaces donc
+> TypeScript ne le compile jamais en place.

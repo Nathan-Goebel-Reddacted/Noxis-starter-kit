@@ -10,5 +10,6 @@ Orchestre le domaine. Un fichier = un cas d'usage.
 **Règles :**
 - Peut importer depuis `Domain/` uniquement
 - Ne contient aucune logique métier — délègue tout à l'agrégat
-- Toujours : `save()` → `pullDomainEvents()` → `publish()`
+- Toujours : `save()` → `flushDomainEvents()` → `publish()`
 - Un use case = une seule responsabilité
+

@@ -1,5 +1,5 @@
 {
-  "name": "@cardgame/api",
+  "name": "@cardgame/server",
   "version": "0.0.1",
   "private": true,
   "type": "module",
