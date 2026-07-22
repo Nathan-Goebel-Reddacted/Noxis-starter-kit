@@ -3,6 +3,7 @@
 ## Contexte du projet
 
 Hub de jeux de cartes façon "Roblox pour cartes" :
+
 - Les joueurs choisissent parmi des jeux existants
 - Les créateurs peuvent définir leurs propres jeux de cartes
 - Les joueurs peuvent créer des instances (parties) de ces jeux
@@ -45,7 +46,9 @@ Il y a deux niveaux, déblocables séquentiellement :
   - Déclenché sur PR et push main
 
 ### Note microservices
+
 Si l'architecture retient les microservices, prévoir :
+
 - Un dossier `infra/` à la racine contenant docker-compose global + scripts de démarrage
 - Un template de service indépendant (son propre compose, son propre Makefile)
 
@@ -58,29 +61,39 @@ Si l'architecture retient les microservices, prévoir :
 
 ### Structure de dossiers cible (à adapter au langage)
 
+`apps/` contient exactement trois dossiers : **Bun** (backend), **React** (front),
+**Shared** (building blocks). Dans `Bun/src` et `React/src`, un dossier par bounded context.
+
 ```
-domain-template/
-  Domain/
-    Model/            ← Aggregates, Entities, Value Objects
-    Repository/       ← Interfaces (ports) — PAS d'implémentation ici
-    Service/          ← Domain services (logique qui ne rentre pas dans un agrégat)
-    Event/            ← Domain events
-    Exception/        ← Exceptions métier typées
-    README.md         ← Conventions à respecter dans ce domaine
-  Application/
-    Command/          ← Commands + Handlers (écriture)
-    Query/            ← Queries + Handlers (lecture)
-    Port/             ← Interfaces vers l'extérieur (autre sens que Repository)
-    README.md
-  Infrastructure/
-    Persistence/      ← Implémentation des Repository
-    Messaging/        ← Bus d'événements, adapters
-    README.md
-  Interface/
-    Http/             ← Controllers, DTOs entrants/sortants
-    Cli/              ← Commandes CLI si besoin
-    README.md
+apps/
+  Bun/src/
+    _domain-template/   ← template à copier (seul contenu fourni)
+    index.ts            ← point d'entrée unique, monte tous les contextes
+    mongo.ts migrate.ts
+  React/src/
+    _domain-template/
+    App.tsx socket.ts
+  Shared/src/           ← AggregateRoot, ValueObject, DomainEvent, Repository, EventBus
 ```
+
+Le kit ne livre **aucun** bounded context : `entity`, `component`, `system`, `gameplay`
+et `hub` sont à créer par copie du template le moment venu.
+
+Chaque bounded context (backend) :
+
+```
+<contexte>/
+  application/  command/ query/ handler/
+  domain/       model/ value-object/ event/ exception/ factory/ port/ service/
+  infra/        mongodb/ event-bus/ web-socket/ api/
+  container.ts  ← composition root
+```
+
+Côté React, `domain/` et `application/` sont identiques (sans `factory/`) ; seule
+`infra/` change : `socket-client/ api/ store/ ui/`.
+
+Règle de dépendance, non négociable : `infra → application → domain`.
+`domain/` n'importe que `@app/shared`.
 
 ### Fichiers squelettes à inclure dans le template
 
@@ -94,6 +107,7 @@ Ces fichiers contiennent uniquement le contrat (interface/classe abstraite), jam
 - [ ] `CommandBus` / `QueryBus` — interfaces des bus applicatifs (si CQRS retenu)
 
 ### Utilisation
+
 ```
 cp -r domain-template/ src/Domains/NouveauDomaine/
 # Remplir les dossiers, garder la structure
@@ -106,40 +120,46 @@ cp -r domain-template/ src/Domains/NouveauDomaine/
 Le projet a déjà un modèle DDD documenté. Une fois le Niveau 2 prêt, voici les domaines à instancier :
 
 ### Agrégats principaux
-| Agrégat | Rôle |
-|---------|------|
+
+| Agrégat    | Rôle                                                                |
+| ---------- | ------------------------------------------------------------------- |
 | `Instance` | Aggregate Root d'une partie en cours — toute mutation passe par lui |
-| `Player` | Aggregate Root d'un joueur — possède ses zones, ses compteurs |
+| `Player`   | Aggregate Root d'un joueur — possède ses zones, ses compteurs       |
 
 ### Entités
-| Entité | Rôle |
-|--------|------|
-| `Board` | Organisation spatiale des zones et boutons |
-| `GameZone` | Zone de jeu paramétrable (deck, main, cimetière...) |
-| `CardInstance` | Une carte en jeu (état mutable) |
-| `Button` | Action interactive sur le Board, déclenche un Script |
+
+| Entité         | Rôle                                                 |
+| -------------- | ---------------------------------------------------- |
+| `Board`        | Organisation spatiale des zones et boutons           |
+| `GameZone`     | Zone de jeu paramétrable (deck, main, cimetière...)  |
+| `CardInstance` | Une carte en jeu (état mutable)                      |
+| `Button`       | Action interactive sur le Board, déclenche un Script |
 
 ### Value Objects
-| Value Object | Rôle |
-|--------------|------|
-| `CardDefinition` | Template immuable d'une carte |
-| `ScriptDefinition` | Règle déclarative (trigger + condition + actions) |
+
+| Value Object             | Rôle                                                  |
+| ------------------------ | ----------------------------------------------------- |
+| `CardDefinition`         | Template immuable d'une carte                         |
+| `ScriptDefinition`       | Règle déclarative (trigger + condition + actions)     |
 | `CounterSet` / `Counter` | Système de compteurs transversal (vie, mana, buff...) |
-| `Condition` | Prédicat composable (AND/OR/NOT + conditions métier) |
-| `Action` | Brique atomique d'un script (MOVE_CARD, TAP, DRAW...) |
+| `Condition`              | Prédicat composable (AND/OR/NOT + conditions métier)  |
+| `Action`                 | Brique atomique d'un script (MOVE_CARD, TAP, DRAW...) |
 
 ### Interface transversale
+
 - `Countable` — interface implémentée par Instance, Player, GameZone, CardInstance, Board, Button
 
 ---
 
 ## Décisions arrêtées
 
-| Décision | Choix | Impact |
-|----------|-------|--------|
-| Langage / Runtime | **TypeScript + Bun** | Niveau 2 débloqué |
-| Frontend | **React + TypeScript** | — |
-| Communication | **Socket.IO** | Architecture event-driven, pas de REST pur |
+| Décision          | Choix                  | Impact                                                                    |
+| ----------------- | ---------------------- | ------------------------------------------------------------------------- |
+| Langage / Runtime | **TypeScript + Bun**   | Niveau 2 débloqué                                                         |
+| Frontend          | **React + TypeScript** | —                                                                         |
+| Communication     | **Socket.IO**          | Architecture event-driven, pas de REST pur                                |
+| Base persistante  | **MongoDB**            | Document store — pas de migrations DDL, `make migrate` = création d'index |
+| Base volatile     | **Redis**              | Parties en cours + pub/sub Socket.IO                                      |
 
 ## Questions ouvertes bloquantes pour le kit
 

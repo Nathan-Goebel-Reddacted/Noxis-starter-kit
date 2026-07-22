@@ -12,13 +12,11 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
+    "noEmit": true,
     "sourceMap": true,
-    "baseUrl": ".",
     "paths": {
-      "@cardgame/shared": ["./shared/src/index.ts"]
+      "@app/shared": ["./apps/Shared/src/index.ts"],
+      "@app/shared/*": ["./apps/Shared/src/*"]
     }
   },
   "exclude": ["node_modules", "dist"]

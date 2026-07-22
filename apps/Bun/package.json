@@ -1,0 +1,21 @@
+{
+  "name": "@app/bun",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "build": "bun build src/index.ts --target bun --outdir dist --packages external",
+    "migrate": "bun src/migrate.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@app/shared": "workspace:*",
+    "mongodb": "^6.21.0",
+    "socket.io": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}

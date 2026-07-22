@@ -1,22 +1,27 @@
 {
-  "name": "cardgame-monorepo",
+  "name": "app-monorepo",
   "version": "0.0.1",
   "private": true,
   "type": "module",
   "workspaces": [
-    "apps/*",
-    "shared"
+    "apps/*"
   ],
+  "engines": {
+    "bun": ">=1.3.0"
+  },
   "scripts": {
     "test": "bun test",
-    "typecheck": "tsc --noEmit",
-    "lint": "tsc --noEmit && eslint .",
+    "typecheck": "tsc -p apps/Shared && tsc -p apps/Bun && tsc -p apps/React",
+    "lint": "bun run typecheck && eslint .",
     "format": "prettier --write .",
-    "migrate": "bun --filter @cardgame/server run migrate",
+    "format:check": "prettier --check .",
+    "dev:bun": "bun run --filter '@app/bun' dev",
+    "dev:react": "bun run --filter '@app/react' dev",
+    "build": "bun run --filter '*' build",
+    "migrate": "bun run --filter '@app/bun' migrate",
     "prepare": "lefthook install"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
     "@commitlint/cli": "^19.0.0",
     "@commitlint/config-conventional": "^19.0.0",
     "@types/bun": "latest",
